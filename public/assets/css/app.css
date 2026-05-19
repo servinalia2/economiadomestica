@@ -1,0 +1,4 @@
+.card-stat { min-height: 120px; }
+.table td, .table th { vertical-align: middle; }
+.amount-income { color: #198754; font-weight: 600; }
+.amount-expense { color: #dc3545; font-weight: 600; }
