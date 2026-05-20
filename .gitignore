@@ -1,0 +1,5 @@
+/vendor/
+/storage/uploads/*
+!/storage/uploads/.gitkeep
+/config/local.php
+.env
