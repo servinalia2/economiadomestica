@@ -119,9 +119,15 @@ function movementsPage(PDO $pdo): void
     if (!empty($_GET['desde'])) { $where[] = 'm.fecha >= :desde'; $params['desde'] = $_GET['desde']; }
     if (!empty($_GET['hasta'])) { $where[] = 'm.fecha <= :hasta'; $params['hasta'] = $_GET['hasta']; }
     if (!empty($_GET['pendiente'])) { $where[] = 'm.pendiente_revision = 1'; }
-    $stmt = $pdo->prepare('SELECT m.*, c.nombre categoria, s.nombre subcategoria FROM movimientos m LEFT JOIN categorias c ON c.id=m.categoria_id LEFT JOIN subcategorias s ON s.id=m.subcategoria_id WHERE ' . implode(' AND ', $where) . ' ORDER BY m.fecha DESC, m.id DESC LIMIT 200');
+    $baseQuery = 'FROM movimientos m LEFT JOIN categorias c ON c.id=m.categoria_id LEFT JOIN subcategorias s ON s.id=m.subcategoria_id WHERE ' . implode(' AND ', $where);
+    $stmt = $pdo->prepare('SELECT m.*, c.nombre categoria, s.nombre subcategoria ' . $baseQuery . ' ORDER BY m.fecha DESC, m.id DESC LIMIT 200');
     $stmt->execute($params);
-    render('movements', ['movements' => $stmt->fetchAll(), 'categories' => categories(), 'subcategories' => subcategories()]);
+
+    $totalStmt = $pdo->prepare('SELECT COALESCE(SUM(m.importe), 0) total_importe ' . $baseQuery);
+    $totalStmt->execute($params);
+    $totalImporte = (float) $totalStmt->fetchColumn();
+
+    render('movements', ['movements' => $stmt->fetchAll(), 'categories' => categories(), 'subcategories' => subcategories(), 'totalImporte' => $totalImporte]);
 }
 
 function movementForm(PDO $pdo): void
